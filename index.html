@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=5">
+<meta name="theme-color" content="#efe3cf">
+<title>기도 모음</title>
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="apple-touch-icon" href="./icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="기도 모음">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Nanum+Myeongjo:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#efe3cf; --card:#f7eedd; --ink:#2c2114; --soft:#7d6b50;
+    --line:#ddcbac; --accent:#9a5a2b; --accentbg:#e6d4b4;
+    --fs:23px;            /* 기본 글자 크기(큼) — 가-/가+로 조절 */
+  }
+  html{ -webkit-text-size-adjust:100%; }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html,body{margin:0;padding:0;}
+  body{
+    background-color:var(--bg);
+    /* 은은한 한지 결: 옅은 얼룩과 섬유 느낌을 그라데이션으로 */
+    background-image:
+      radial-gradient(circle at 18% 22%, rgba(180,150,100,.10), transparent 42%),
+      radial-gradient(circle at 82% 12%, rgba(150,120,70,.08), transparent 38%),
+      radial-gradient(circle at 70% 85%, rgba(160,130,80,.09), transparent 45%),
+      radial-gradient(circle at 30% 70%, rgba(190,165,120,.07), transparent 40%);
+    background-attachment:fixed;
+    color:var(--ink);
+    font-family:"Gowun Batang","Nanum Myeongjo",-apple-system,"Apple SD Gothic Neo",serif;
+    line-height:1.9; -webkit-text-size-adjust:100%;
+    padding-top:env(safe-area-inset-top); padding-bottom:env(safe-area-inset-bottom);
+  }
+
+  /* ===== 상단 바 ===== */
+  header{
+    position:sticky; top:0; z-index:10;
+    background:rgba(239,227,207,.92); backdrop-filter:blur(4px);
+    border-bottom:1px solid var(--line);
+    padding:calc(env(safe-area-inset-top) + 10px) 14px 10px;
+    display:flex; align-items:center; gap:10px;
+  }
+  .h-title{flex:1; font-size:21px; font-weight:700; letter-spacing:.5px;}
+  .btn{
+    border:1px solid var(--line); background:var(--card); color:var(--ink);
+    border-radius:14px; padding:10px 14px; font-size:18px; font-family:inherit;
+    cursor:pointer; min-height:48px; min-width:48px; display:flex;
+    align-items:center; justify-content:center; gap:4px; font-weight:700;
+  }
+  .btn:active{background:var(--accentbg);}
+  .btn-back{font-size:19px;}
+  .sizebox{display:flex; gap:6px; align-items:center;}
+  .sizebox .btn{padding:10px 12px; font-weight:700;}
+  .ga-s{font-size:15px;} .ga-l{font-size:22px;}
+
+  /* ===== 목록 화면 ===== */
+  #listView{padding:8px 12px 30px;}
+  .list-hint{color:var(--soft); font-size:16px; text-align:center; margin:14px 6px 18px;}
+  .item{
+    display:flex; align-items:center; width:100%; text-align:left;
+    background:var(--card); border:1px solid var(--line); border-radius:16px;
+    padding:18px 18px; margin:10px 0; cursor:pointer; color:var(--ink);
+    font-family:inherit; font-size:21px; font-weight:700; line-height:1.5;
+  }
+  .item:active{background:var(--accentbg);}
+  .item .num{
+    flex:none; width:34px; height:34px; margin-right:14px; border-radius:50%;
+    background:var(--accentbg); color:var(--accent); font-size:16px; font-weight:700;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .item .t{flex:1;}
+  .item .sub{display:block; font-size:15px; font-weight:400; color:var(--soft); margin-top:3px;}
+  .item .arrow{color:var(--soft); font-size:22px; margin-left:8px;}
+
+  /* ===== 본문 화면 색 (변수로 두어 ◐ 버튼에 반응) ===== */
+  /* 기본: 본문은 따뜻한 먹빛 한지 바탕 + 밝은 글씨 */
+  :root{
+    --r-bg:#241a10; --r-ink:#f3e7d0; --r-accent:#e0a866;
+    --r-soft:#bfa988; --r-card:#322618; --r-line:#473726;
+  }
+  /* ◐ 토글 시: 밝은 한지 바탕 + 진한 먹글씨로 반전 */
+  html[data-flip="1"]{
+    --r-bg:#efe3cf; --r-ink:#2c2114; --r-accent:#9a5a2b;
+    --r-soft:#7d6b50; --r-card:#f7eedd; --r-line:#ddcbac;
+  }
+
+  /* ===== 본문 화면 ===== */
+  #readView{
+    display:none; padding:18px 18px 60px;
+    background:var(--r-bg); color:var(--r-ink);
+    min-height:100vh;
+  }
+  .r-title{font-size:20px; font-weight:800; line-height:1.35; margin:6px 4px 4px; color:var(--r-accent); font-family:"Nanum Myeongjo",serif;}
+  .r-sub{font-size:.8em; color:var(--r-soft); margin:0 4px 10px;}
+  .r-body{font-size:var(--fs); color:var(--r-ink);}
+  .r-body p{margin:0 0 1.15em; white-space:pre-wrap; word-break:keep-all; color:var(--r-ink);}
+  .r-note{
+    margin-top:24px; padding-top:16px; border-top:1px dashed var(--r-line);
+    color:var(--r-soft); font-size:.72em; text-align:right; white-space:pre-wrap;
+  }
+  .r-nav{display:flex; gap:10px; margin-top:30px;}
+  .r-nav .btn{
+    flex:1; min-height:54px; font-size:17px;
+    background:var(--r-card); color:var(--r-ink); border-color:var(--r-line);
+  }
+  .r-nav .btn:active{opacity:.8;}
+  .r-nav .btn[disabled]{opacity:.35;}
+
+  footer{color:var(--soft); font-size:13px; text-align:center; padding:24px 16px 30px;}
+
+  /* 본문을 볼 때 상단바도 본문 톤(--r-*)에 맞춤 */
+  body.reading header{background:var(--r-bg); border-bottom-color:var(--r-line);}
+  body.reading .h-title{color:var(--r-ink); visibility:hidden;}
+
+  /* 본문 보기일 때 상단바를 절반 높이로 축소 */
+  body.reading header{padding-top:calc(env(safe-area-inset-top) + 5px); padding-bottom:5px;}
+  body.reading header .btn{min-height:34px; min-width:34px; padding:5px 9px; font-size:15px; border-radius:10px;}
+  body.reading header .sizebox .btn{padding:5px 8px;}
+  body.reading header .ga-s{font-size:12px;}
+  body.reading header .ga-l{font-size:17px;}
+  body.reading header .btn{background:var(--r-card); color:var(--r-ink); border-color:var(--r-line);}
+
+  /* 목록 화면: ◐ 토글 시 어두운 한지 톤으로 반전 */
+  html[data-flip="1"] body:not(.reading){background-color:#241a10;}
+  html[data-flip="1"] body:not(.reading) header{background:rgba(36,26,16,.92); border-bottom-color:#473726;}
+  html[data-flip="1"] body:not(.reading) .h-title{color:#f3e7d0;}
+  html[data-flip="1"] body:not(.reading) header .btn{background:#322618; color:#f3e7d0; border-color:#473726;}
+  html[data-flip="1"] body:not(.reading) .list-hint{color:#bfa988;}
+  html[data-flip="1"] body:not(.reading) .item{background:#322618; color:#f3e7d0; border-color:#473726;}
+  html[data-flip="1"] body:not(.reading) .item .num{background:#473726; color:#e0a866;}
+  html[data-flip="1"] body:not(.reading) .item .sub,
+  html[data-flip="1"] body:not(.reading) .item .arrow{color:#bfa988;}
+  html[data-flip="1"] body:not(.reading) footer{color:#bfa988;}
+</style>
+</head>
+<body>
+<header>
+  <button class="btn btn-back" id="backBtn" style="display:none" aria-label="목록으로">‹ 목록</button>
+  <div class="h-title" id="hTitle">기도 모음</div>
+  <div class="sizebox">
+    <button class="btn" id="sizeDown" aria-label="글자 작게"><span class="ga-s">가</span>−</button>
+    <button class="btn" id="sizeUp" aria-label="글자 크게"><span class="ga-l">가</span>＋</button>
+    <button class="btn" id="themeBtn" aria-label="화면 밝기">◐</button>
+  </div>
+</header>
+
+<main>
+  <section id="listView"></section>
+  <section id="readView"></section>
+</main>
+
+<footer>천천히 기도하세요</footer>
+
+<script src="./data.js"></script>
+<script>
+  // ---------- 글자 크기 (메모리 변수로만 관리) ----------
+  var FS_MIN=18, FS_MAX=40, fsStep=3;
+  var fs = 23;
+  function applyFS(){ document.documentElement.style.setProperty('--fs', fs+'px'); }
+  document.getElementById('sizeUp').onclick=function(){ fs=Math.min(FS_MAX,fs+fsStep); applyFS(); };
+  document.getElementById('sizeDown').onclick=function(){ fs=Math.max(FS_MIN,fs-fsStep); applyFS(); };
+  applyFS();
+
+  // ---------- 명암 반전 (◐) : 목록↔본문 색을 통째로 뒤집기 ----------
+  var themeBtn=document.getElementById('themeBtn');
+  themeBtn.onclick=function(){
+    var on=document.documentElement.getAttribute('data-flip')==='1';
+    document.documentElement.setAttribute('data-flip', on?'0':'1');
+  };
+
+  // ---------- 화면 전환 ----------
+  var listView=document.getElementById('listView');
+  var readView=document.getElementById('readView');
+  var backBtn=document.getElementById('backBtn');
+  var hTitle=document.getElementById('hTitle');
+  var curIndex=-1;
+
+  function buildList(){
+    var hint=document.createElement('div');
+    hint.className='list-hint';
+    hint.textContent='읽고 싶은 기도를 골라 주세요';
+    listView.appendChild(hint);
+
+    DATA.forEach(function(item, i){
+      var b=document.createElement('button');
+      b.className='item';
+      var sub = item.subtitle ? '<span class="sub">'+item.subtitle+'</span>' : '';
+      b.innerHTML='<span class="num">'+(i+1)+'</span>'
+                 +'<span class="t">'+item.title+sub+'</span>'
+                 +'<span class="arrow">›</span>';
+      b.onclick=function(){ openRead(i); };
+      listView.appendChild(b);
+    });
+  }
+
+  function openRead(i){
+    curIndex=i;
+    var item=DATA[i];
+    var html='<div class="r-title">'+item.title+'</div>';
+    if(item.subtitle) html+='<div class="r-sub">— '+item.subtitle+' —</div>';
+    html+='<div class="r-body">';
+    item.body.forEach(function(p){ html+='<p>'+escapeHtml(p)+'</p>'; });
+    html+='</div>';
+    if(item.note) html+='<div class="r-note">'+escapeHtml(item.note)+'</div>';
+    html+='<div class="r-nav">'
+        +'<button class="btn" id="prevBtn"'+(i===0?' disabled':'')+'>‹ 이전</button>'
+        +'<button class="btn" id="nextBtn"'+(i===DATA.length-1?' disabled':'')+'>다음 ›</button>'
+        +'</div>';
+    readView.innerHTML=html;
+
+    var pv=document.getElementById('prevBtn'), nx=document.getElementById('nextBtn');
+    if(pv) pv.onclick=function(){ if(curIndex>0) openRead(curIndex-1); };
+    if(nx) nx.onclick=function(){ if(curIndex<DATA.length-1) openRead(curIndex+1); };
+
+    listView.style.display='none';
+    readView.style.display='block';
+    backBtn.style.display='flex';
+    document.body.classList.add('reading');
+    hTitle.textContent=item.title;
+    window.scrollTo(0,0);
+  }
+
+  function showList(){
+    readView.style.display='none';
+    listView.style.display='block';
+    backBtn.style.display='none';
+    document.body.classList.remove('reading');
+    hTitle.textContent='기도 모음';
+    window.scrollTo(0,0);
+  }
+  backBtn.onclick=showList;
+
+  function escapeHtml(s){
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  buildList();
+
+  // ---------- 서비스워커 등록 + 자동 갱신 ----------
+  if('serviceWorker' in navigator){
+    window.addEventListener('load', function(){
+      navigator.serviceWorker.register('./sw.js').then(function(reg){
+        reg.addEventListener('updatefound', function(){
+          var nw=reg.installing;
+          if(!nw) return;
+          nw.addEventListener('statechange', function(){
+            if(nw.state==='installed' && navigator.serviceWorker.controller){
+              window.location.reload();   // 새 내용 받으면 1회 자동 새로고침
+            }
+          });
+        });
+      }).catch(function(){});
+    });
+  }
+</script>
+</body>
+</html>
